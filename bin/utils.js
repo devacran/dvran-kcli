@@ -1,7 +1,7 @@
 const { exec } = require("child_process");
-
+const prompt = require("prompt-async");
 const usage = "\nUsage: tran <lang_name> sentence to be translated";
-
+const jiraTicketRegex = /[A-Z]{2,}-\d+/g
 function showHelp() {
   console.log(usage);
   console.log("\nOptions:\r");
@@ -18,8 +18,21 @@ function showHelp() {
   console.log("\t--help\t\t      " + "Show help." + "\t\t\t" + "[boolean]\n");
 }
 
-function cmCommand(message, ticketNumber) {
-  exec(`git commit -m"${message} ${ticketNumber}"`, (error, stdout, stderr) => {
+async function cmCommand(message) {
+  let commitMsg = message
+   const commitMsgInput = {
+    name: "commitMsg",
+    description: "Enter a commit message", 
+    type: "string", 
+    message: "Message is required",
+    required: true,
+  };
+  if(!commitMsg){
+    commitMsg = (await prompt.get(commitMsgInput)).commitMsg
+  } 
+
+  getJiraTicket((jiraTicketNumber)=>{
+exec(`git commit -m"${commitMsg} [${jiraTicketNumber}]"`, (error, stdout, stderr) => {
     if (error) {
       console.log(`error: ${error.message}`);
       return;
@@ -29,6 +42,21 @@ function cmCommand(message, ticketNumber) {
       return;
     }
   });
+  })
+  
 }
 
+function getJiraTicket(cb){
+  exec(`git branch | grep "*"`, (error, stdout, stderr) => {
+    if (error) {
+      console.log(`error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.log(`stderr: ${stderr}`);
+      return;
+    }
+    cb(stdout.slice(2).match(jiraTicketRegex)[0])
+  });
+}
 module.exports = { showHelp, commands: { cm: cmCommand } };

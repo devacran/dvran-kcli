@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 const yargs = require("yargs");
 const prompt = require("prompt-async");
-const { commands } = require("./utils.js");
+const { commands, getGitBranchName } = require("./utils.js");
 const utils = require("./utils.js");
 const usage = "\nUsage: tran <lang_name> sentence to be translated";
 
@@ -37,6 +37,14 @@ if (yargs.argv._[0] === "branch") {
   });
   console.log("enter branch description: ");
   console.log("git checkout master && git pull && git branch -d ");
+  return;
+}
+
+if (yargs.argv._[0] === "cm") {
+  if (options._) {
+    console.log(options._);
+  }
+   commands.cm()
   return;
 }
 
