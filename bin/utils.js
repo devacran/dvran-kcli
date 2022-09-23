@@ -1,5 +1,9 @@
 const { exec } = require("child_process");
 const prompt = require("prompt-async");
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5592fc5 (add branch command)
 const usage = "\nUsage: tran <lang_name> sentence to be translated";
 const jiraTicketRegex = /[A-Z]{2,}-\d+/g;
 function showHelp() {
@@ -10,7 +14,7 @@ function showHelp() {
   );
   console.log(
     "    -l, --languages\t" +
-      "      " +
+      "     " +
       "List all languages." +
       "\t\t" +
       "[boolean]\r"
@@ -67,4 +71,53 @@ function getJiraTicket(cb) {
     }
   });
 }
+<<<<<<< HEAD
 module.exports = { showHelp, commands: { cm: cmCommand } };
+=======
+
+async function branchCommand(options) {
+  let ticketNumber = options.ticket;
+  let branchName = options.name;
+
+  const ticketInput = {
+    name: "ticket",
+    description: "Enter your jira ticket",
+    type: "string",
+    message: "Ticket is required",
+    required: true,
+  };
+  const branchNameInput = {
+    name: "branchName",
+    description: "Enter a branch description",
+    type: "string",
+    message: "Branch name description is required",
+    required: true,
+  };
+  if (!branchName) {
+    branchName = (await prompt.get(branchNameInput)).branchName;
+  }
+
+  if (!ticketNumber) {
+    ticketNumber = (await prompt.get(ticketInput)).ticket;
+  }
+  branchName = branchName.split(" ").join("-");
+  const command = `git checkout develop && git pull --ff-only && git checkout -b ${ticketNumber}-${branchName}`;
+  exec(command, (error, stderr) => {
+    if (error) {
+      console.log(`error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.log(`stderr: ${stderr}`);
+      return;
+    }
+  });
+  //console.log("enter branch description: ");
+  //console.log("git checkout master && git pull && git branch -d ");
+  return;
+}
+module.exports = {
+  showHelp,
+  commands: { cm: cmCommand, branch: branchCommand },
+};
+>>>>>>> 5592fc5 (add branch command)

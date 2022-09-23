@@ -13,6 +13,11 @@ const options = yargs
     type: "boolean",
     demandOption: false,
   })
+  .option("t", {
+    alias: "ticket",
+    describe: "set ticket number",
+    type: "string",
+  })
   .help(true).argv;
 
 if (yargs.argv._[0] === null) {
@@ -21,31 +26,13 @@ if (yargs.argv._[0] === null) {
 }
 
 if (yargs.argv._[0] === "branch") {
-  if (options._) {
-    console.log(options._);
-  }
-    const ticket = {
-    name: "ticket",
-    description: "Enter your jira ticket", 
-    type: "string", 
-    message: "Ticket is required",
-    required: true,
-  };
-  console.log("enter your ticket: ");
-    prompt.get([ticket], function (err, result) {
-    console.log("result", result.ticket);
-  });
-  console.log("enter branch description: ");
-  console.log("git checkout master && git pull && git branch -d ");
-  return;
+  commands.branch({ name: options.ticket, ticket: options.name });
 }
 
 if (yargs.argv._[0] === "cm") {
   if (options._) {
     console.log(options._);
   }
-   commands.cm()
+  commands.cm();
   return;
 }
-
-
