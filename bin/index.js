@@ -1,26 +1,12 @@
 #! /usr/bin/env node
 const yargs = require("yargs");
-const prompt = require("prompt-async");
-const { commands, getGitBranchName } = require("./utils.js");
+const { commands } = require("./utils.js");
 const utils = require("./utils.js");
-const usage = "\nUsage: tran <lang_name> sentence to be translated";
+const usage = "\nUsage: kcli [branch] [cm]";
 
-const options = yargs
-  .usage(usage)
-  .option("l", {
-    alias: "languages",
-    describe: "List all supported languages.",
-    type: "boolean",
-    demandOption: false,
-  })
-  .option("t", {
-    alias: "ticket",
-    describe: "set ticket number",
-    type: "string",
-  })
-  .help(true).argv;
+const options = yargs.usage(usage).help(true).argv;
 
-if (yargs.argv._[0] === null) {
+if (!yargs.argv._[0]) {
   utils.showHelp();
   return;
 }
@@ -30,9 +16,8 @@ if (yargs.argv._[0] === "branch") {
 }
 
 if (yargs.argv._[0] === "cm") {
-  if (options._) {
-    console.log(options._);
-  }
-  commands.cm();
+  const isTemp = options.temp;
+  const message = options.message;
+  commands.cm({ isTemp, message });
   return;
 }

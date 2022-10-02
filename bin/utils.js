@@ -1,28 +1,42 @@
 const { exec } = require("child_process");
 const prompt = require("prompt-async");
-<<<<<<< HEAD
-=======
 
->>>>>>> 5592fc5 (add branch command)
-const usage = "\nUsage: tran <lang_name> sentence to be translated";
-const jiraTicketRegex = /[A-Z]{2,}-\d+/g;
-function showHelp() {
-  console.log(usage);
-  console.log("\nOptions:\r");
-  console.log(
-    "\t--version\t      " + "Show version number." + "\t\t" + "[boolean]\r"
+const JIRA_TICKET_REGEX = /[A-Z]{2,}-\d+/g;
+
+async function cmCommand({ message, isTemp }) {
+  exec(
+    'git rev-list --format=%B --max-count=1 HEAD | grep "Work in progress"',
+    (error, stdout, stderr) => {
+      if (!stdout) {
+        commitChanges(isTemp, message);
+      } else {
+        console.log("A temp commit already exists");
+      }
+    }
   );
-  console.log(
-    "    -l, --languages\t" +
-      "     " +
-      "List all languages." +
-      "\t\t" +
-      "[boolean]\r"
-  );
-  console.log("\t--help\t\t      " + "Show help." + "\t\t\t" + "[boolean]\n");
 }
 
-async function cmCommand(message) {
+async function commitChanges(isTemp, message) {
+  if (isTemp) {
+    exec(
+      `git commit --no-verify -m"Work in progress, don´t fork this branch"`,
+      (error, stdout, stderr) => {
+        if (error) {
+          console.log(`error: ${error.message}`);
+          return;
+        }
+        if (stderr) {
+          console.log(`stderr: ${stderr}`);
+          return;
+        }
+        console.log(
+          "Changes Commited, Don´t forget ammend this commit before create new one ;)"
+        );
+      }
+    );
+    return;
+  }
+
   let commitMsg = message;
   const commitMsgInput = {
     name: "commitMsg",
@@ -63,7 +77,7 @@ function getJiraTicket(cb) {
       return;
     }
     try {
-      cb(stdout.slice(2).match(jiraTicketRegex)[0]);
+      cb(stdout.slice(2).match(JIRA_TICKET_REGEX)[0]);
     } catch (error) {
       console.log(
         `error: unable to commit, did you create this branch with kcli?`
@@ -71,9 +85,6 @@ function getJiraTicket(cb) {
     }
   });
 }
-<<<<<<< HEAD
-module.exports = { showHelp, commands: { cm: cmCommand } };
-=======
 
 async function branchCommand(options) {
   let ticketNumber = options.ticket;
@@ -112,12 +123,9 @@ async function branchCommand(options) {
       return;
     }
   });
-  //console.log("enter branch description: ");
-  //console.log("git checkout master && git pull && git branch -d ");
   return;
 }
+
 module.exports = {
-  showHelp,
   commands: { cm: cmCommand, branch: branchCommand },
 };
->>>>>>> 5592fc5 (add branch command)
